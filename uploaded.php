@@ -1,22 +1,27 @@
 <?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $targetDir = "uploads/";
+    $targetFile = $targetDir . basename($_FILES["pdfFile"]["name"]);
+    $uploadOk = 1;
+    $pdfFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-$upload_directory = getcwd() . '/uploads/';
-$relative_path = '/uploads/';
+    // Check if file is a PDF
+    if ($pdfFileType != "pdf") {
+        echo "Sorry, only PDF files are allowed.";
+        $uploadOk = 0;
+    }
 
-// Handle Text File
-$uploaded_text_file = $upload_directory . basename($_FILES['text_file']['name']);
-$temporary_file = $_FILES['text_file']['tmp_name'];
-
-if (move_uploaded_file($temporary_file, $uploaded_text_file)) {
-    $text_file_content = file_get_contents($uploaded_text_file, 'r');
-    ?>
-    <textarea cols="70" rows="30"><?php echo $text_file_content; ?></textarea>
-    <?php
-} else {
-    echo 'Failed to upload file';
+    // Check if $uploadOk is set to 0 by an error
+    if ($uploadOk == 0) {
+        echo "Sorry, your file was not uploaded.";
+    } else {
+        // Try to upload file
+        if (move_uploaded_file($_FILES["pdfFile"]["tmp_name"], $targetFile)) {
+            header("Location: index.php?file=" . urlencode($targetFile));
+            exit();
+        } else {
+            echo "Sorry, there was an error uploading your file.";
+        }
+    }
 }
-
-
-echo '<pre>';
-var_dump($_FILES);
-exit;
+?>
